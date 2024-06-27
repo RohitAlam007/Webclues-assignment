@@ -25,4 +25,3 @@ variable "ami_id" {
 variable "instance_volume_size" {
   default = 20
 }
-

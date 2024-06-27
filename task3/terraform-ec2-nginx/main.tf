@@ -91,4 +91,3 @@ resource "aws_instance" "main" {
     Name = "main-instance"
   }
 }
-
