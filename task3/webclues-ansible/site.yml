@@ -1,0 +1,67 @@
+---
+- hosts: webserver
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt: update_cache=yes
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add current user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Pull the rohitalam/webclues Docker image
+      docker_image:
+        name: rohitalam/webclues
+        tag: v1
+        source: pull
+
+    - name: Run the rohitalam/webclues Docker container
+      docker_container:
+        name: webclues_app
+        image: rohitalam/webclues:v1
+        state: started
+        ports:
+          - "3000:3000"
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Configure Nginx as a reverse proxy
+      copy:
+        content: |
+          server {
+              listen 80;
+
+              location / {
+                  proxy_pass http://localhost:3000;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
+          }
+        dest: /etc/nginx/sites-available/default
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Restart Nginx
+      systemd:
+        name: nginx
+        state: restarted
+
