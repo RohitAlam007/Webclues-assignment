@@ -1,0 +1,9 @@
+So i have uploaded the Docker image to my public docker hub that i used in my ansible configuration
+
+Image name= rohitalam/webclues:v1
+
+The june3.pem is a pem file i have used for my project. You can take yours and in ansible i have used my public ip replace it with yours 
+
+Open port 3000,443,80,22 in security groups.
+
+Rest it has all the three tasks which are required
